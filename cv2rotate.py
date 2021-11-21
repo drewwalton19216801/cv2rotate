@@ -9,7 +9,7 @@ import sys, os
     2: Input image file path (-i or --image), Path to the original image.
     3: Output image file path (-o or --output), Path to the new image. Not required if benchmark mode is on.
     4. Rotation vector (-r or --rotate), Rotation percentage amount.
-    5. Benchmark mode (-b or --benchmark), Run in benchmark mode. Not required.
+    5. Benchmark mode (-b or --benchmark), Benchmark the rotation N times. Not required.
     6. Force overwriting (-f or --force), Force overwriting. Not required."""
 def parse_args():
     parser = argparse.ArgumentParser(description='Rotate an image.')
@@ -17,9 +17,11 @@ def parse_args():
     parser.add_argument('-i', '--image', required=True, help='Path to the original image.')
     parser.add_argument('-o', '--output', help='Path to the new image. Not required if benchmark mode is on.')
     parser.add_argument('-r', '--rotate', required=True, help='Rotation percentage amount.')
-    parser.add_argument('-b', '--benchmark', action='store_true', help='Run in benchmark mode.')
+    parser.add_argument('-b', '--benchmark', help='Benchmark the rotation N times.')
     parser.add_argument('-f', '--force', action='store_true', help='Force overwriting.')
     return parser.parse_args()
+
+args = parse_args()
 
 def rotate_image(image, angle):
     """Rotate an image by the given angle."""
@@ -37,7 +39,20 @@ def benchmark(image, angle):
     end = datetime.datetime.now()
     return end - start
 
-args = parse_args()
+"""Function to run the benchmark as many times as is specified, or 1 if not specified. Print the average run time."""
+def run_benchmark(image, angle):
+    if args.benchmark:
+        if args.benchmark.isdigit():
+            runs = int(args.benchmark)
+        else:
+            runs = 1
+        total = datetime.timedelta()
+        for i in range(runs):
+            """Tell the user which run we are on"""
+            print("Run {} of {}".format(i + 1, runs))
+            total += benchmark(image, angle)
+        print("Average run time: {}".format(total / runs))
+
 """If benchmark mode is off, check if the output file has been specified"""
 if not args.benchmark:
     if args.output is None:
@@ -45,11 +60,7 @@ if not args.benchmark:
         sys.exit(1)
 else:
     """Run the benchmark"""
-    print("Benchmarking by rotating 1000x...")
-    image = cv2.imread(args.image)
-    angle = int(args.rotate)
-    print("Rotation angle: {}".format(angle))
-    print("Time taken: {}".format(benchmark(image, angle)))
+    run_benchmark(cv2.imread(args.image), int(args.rotate))
     sys.exit(0)
 
 """Inform the user if verbose mode is on"""
