@@ -15,3 +15,5 @@ usage: cv2rotate.py [-h] [-v] -i IMAGE [-o OUTPUT] -r ROTATE [-b] [-f]
 ```
 
 cv2rotate.py allows for arbitrary rotating of images using the OpenCV2 library. It supports a rudimentary benchmarking mode that simply rotates an image (-i, --image) by the user-specified number of degrees (-r, --rotate) in memory 1000 times.
+
+99% of the code was generated from comments by GitHub Copilot.
